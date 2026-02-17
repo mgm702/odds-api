@@ -1,0 +1,27 @@
+[
+  {
+    "id": "evt001",
+    "sport_key": "basketball_nba",
+    "sport_title": "NBA",
+    "commence_time": "2024-12-01T00:00:00Z",
+    "home_team": "Los Angeles Lakers",
+    "away_team": "Boston Celtics",
+    "completed": false,
+    "scores": [
+      {"name": "Los Angeles Lakers", "score": "55"},
+      {"name": "Boston Celtics", "score": "52"}
+    ],
+    "last_update": "2024-12-01T01:00:00Z"
+  },
+  {
+    "id": "evt003",
+    "sport_key": "basketball_nba",
+    "sport_title": "NBA",
+    "commence_time": "2024-12-02T00:00:00Z",
+    "home_team": "Chicago Bulls",
+    "away_team": "New York Knicks",
+    "completed": false,
+    "scores": null,
+    "last_update": null
+  }
+]

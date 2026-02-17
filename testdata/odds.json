@@ -1,0 +1,50 @@
+[
+  {
+    "id": "evt001",
+    "sport_key": "basketball_nba",
+    "sport_title": "NBA",
+    "commence_time": "2024-12-01T00:00:00Z",
+    "home_team": "Los Angeles Lakers",
+    "away_team": "Boston Celtics",
+    "bookmakers": [
+      {
+        "key": "fanduel",
+        "title": "FanDuel",
+        "last_update": "2024-11-30T22:00:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2024-11-30T22:00:00Z",
+            "outcomes": [
+              {"name": "Los Angeles Lakers", "price": 1.91},
+              {"name": "Boston Celtics", "price": 1.95}
+            ]
+          }
+        ]
+      },
+      {
+        "key": "draftkings",
+        "title": "DraftKings",
+        "last_update": "2024-11-30T22:05:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2024-11-30T22:05:00Z",
+            "outcomes": [
+              {"name": "Los Angeles Lakers", "price": 1.90},
+              {"name": "Boston Celtics", "price": 1.96}
+            ]
+          },
+          {
+            "key": "spreads",
+            "last_update": "2024-11-30T22:05:00Z",
+            "outcomes": [
+              {"name": "Los Angeles Lakers", "price": 1.91, "point": -3.5},
+              {"name": "Boston Celtics", "price": 1.91, "point": 3.5}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

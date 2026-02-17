@@ -1,0 +1,5 @@
+[
+  {"id": "team001", "name": "Los Angeles Lakers", "is_active": true},
+  {"id": "team002", "name": "Boston Celtics", "is_active": true},
+  {"id": "team003", "name": "Seattle SuperSonics", "is_active": false}
+]

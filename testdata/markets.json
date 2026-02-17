@@ -1,0 +1,16 @@
+{
+  "id": "evt001",
+  "sport_key": "basketball_nba",
+  "bookmakers": [
+    {
+      "key": "fanduel",
+      "title": "FanDuel",
+      "markets": [
+        {"key": "h2h"},
+        {"key": "spreads"},
+        {"key": "totals"},
+        {"key": "player_points"}
+      ]
+    }
+  ]
+}

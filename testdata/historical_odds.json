@@ -1,0 +1,32 @@
+{
+  "timestamp": "2024-11-30T12:00:00Z",
+  "previous_timestamp": "2024-11-30T11:55:00Z",
+  "next_timestamp": "2024-11-30T12:05:00Z",
+  "data": [
+    {
+      "id": "evt001",
+      "sport_key": "basketball_nba",
+      "sport_title": "NBA",
+      "commence_time": "2024-12-01T00:00:00Z",
+      "home_team": "Los Angeles Lakers",
+      "away_team": "Boston Celtics",
+      "bookmakers": [
+        {
+          "key": "fanduel",
+          "title": "FanDuel",
+          "last_update": "2024-11-30T11:58:00Z",
+          "markets": [
+            {
+              "key": "h2h",
+              "last_update": "2024-11-30T11:58:00Z",
+              "outcomes": [
+                {"name": "Los Angeles Lakers", "price": 1.88},
+                {"name": "Boston Celtics", "price": 1.98}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
