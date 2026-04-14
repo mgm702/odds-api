@@ -1,0 +1,59 @@
+version: 2
+
+project_name: odds
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: odds
+    main: ./main.go
+    binary: odds
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^Merge'
+      - '^chore'
+
+release:
+  github:
+    owner: mgm702
+    name: odds-api-cli
+
+brews:
+  - name: odds
+    repository:
+      owner: mgm702
+      name: homebrew-odds
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/mgm702/odds-api-cli"
+    description: "CLI for The Odds API v4"
+    test: |
+      system "#{bin}/odds", "--version"
+    install: |
+      bin.install "odds"
