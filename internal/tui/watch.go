@@ -35,6 +35,7 @@ type WatchModel struct {
 	err          error
 	width        int
 	initialized  bool
+	oddsFormat   string
 }
 
 type tickMsg time.Time
@@ -43,7 +44,7 @@ type fetchResultMsg struct {
 	err  error
 }
 
-func NewWatchModel(mode string, interval time.Duration, fetch FetchFunc) WatchModel {
+func NewWatchModel(mode string, interval time.Duration, fetch FetchFunc, oddsFormat string) WatchModel {
 	columns := watchColumns(mode)
 	t := table.New(
 		table.WithColumns(columns),
@@ -68,6 +69,7 @@ func NewWatchModel(mode string, interval time.Duration, fetch FetchFunc) WatchMo
 		table:      t,
 		prevPrices: make(map[string]float64),
 		prevScores: make(map[string]string),
+		oddsFormat: oddsFormat,
 	}
 }
 
@@ -152,12 +154,12 @@ func (m *WatchModel) buildOddsRows(events []model.OddsEvent) []table.Row {
 			for _, mkt := range b.Markets {
 				for _, o := range mkt.Outcomes {
 					key := fmt.Sprintf("%s|%s|%s|%s", e.ID, b.Key, mkt.Key, o.Name)
-					priceStr := fmt.Sprintf("%.2f", o.Price)
+					priceStr := formatOddsPrice(o.Price, m.oddsFormat)
 					if prev, ok := m.prevPrices[key]; ok {
 						if o.Price > prev {
-							priceStr = GreenStyle.Render(fmt.Sprintf("%.2f +", o.Price))
+							priceStr = GreenStyle.Render(formatOddsPrice(o.Price, m.oddsFormat) + " +")
 						} else if o.Price < prev {
-							priceStr = RedStyle.Render(fmt.Sprintf("%.2f -", o.Price))
+							priceStr = RedStyle.Render(formatOddsPrice(o.Price, m.oddsFormat) + " -")
 						}
 					}
 					newPrices[key] = o.Price

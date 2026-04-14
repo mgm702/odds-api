@@ -55,7 +55,7 @@ func testScoreData() WatchData {
 }
 
 func TestWatchModel_Init(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 	cmd := m.Init()
 	if cmd == nil {
 		t.Error("expected non-nil cmd from Init (batch of fetch + tick)")
@@ -63,7 +63,7 @@ func TestWatchModel_Init(t *testing.T) {
 }
 
 func TestWatchModel_ViewOdds(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 	view := m.View()
 	if !strings.Contains(view, "Watch: Odds") {
 		t.Error("expected odds title")
@@ -71,7 +71,7 @@ func TestWatchModel_ViewOdds(t *testing.T) {
 }
 
 func TestWatchModel_ViewScores(t *testing.T) {
-	m := NewWatchModel("scores", 60*time.Second, mockFetch(testScoreData(), nil))
+	m := NewWatchModel("scores", 60*time.Second, mockFetch(testScoreData(), nil), "")
 	view := m.View()
 	if !strings.Contains(view, "Watch: Scores") {
 		t.Error("expected scores title")
@@ -79,7 +79,7 @@ func TestWatchModel_ViewScores(t *testing.T) {
 }
 
 func TestWatchModel_Quit(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'q'}})
 	if cmd == nil {
 		t.Error("expected quit cmd")
@@ -87,7 +87,7 @@ func TestWatchModel_Quit(t *testing.T) {
 }
 
 func TestWatchModel_Pause(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'p'}})
 	model := updated.(WatchModel)
@@ -103,7 +103,7 @@ func TestWatchModel_Pause(t *testing.T) {
 }
 
 func TestWatchModel_FetchResult(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 
 	data := testWatchData()
 	updated, _ := m.Update(fetchResultMsg{data: data})
@@ -118,7 +118,7 @@ func TestWatchModel_FetchResult(t *testing.T) {
 }
 
 func TestWatchModel_FetchError(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 
 	updated, _ := m.Update(fetchResultMsg{err: fmt.Errorf("network error")})
 	model := updated.(WatchModel)
@@ -133,7 +133,7 @@ func TestWatchModel_FetchError(t *testing.T) {
 }
 
 func TestWatchModel_PriceHighlight(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 
 	data := testWatchData()
 	updated, _ := m.Update(fetchResultMsg{data: data})
@@ -149,7 +149,7 @@ func TestWatchModel_PriceHighlight(t *testing.T) {
 }
 
 func TestWatchModel_WindowSize(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 	updated, _ := m.Update(tea.WindowSizeMsg{Width: 120, Height: 40})
 	model := updated.(WatchModel)
 	if !model.initialized {
@@ -158,7 +158,7 @@ func TestWatchModel_WindowSize(t *testing.T) {
 }
 
 func TestWatchModel_LowCreditsWarning(t *testing.T) {
-	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil))
+	m := NewWatchModel("odds", 60*time.Second, mockFetch(testWatchData(), nil), "")
 
 	data := testWatchData()
 	data.Quota.Remaining = 30

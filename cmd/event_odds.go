@@ -24,28 +24,24 @@ var eventOddsCmd = &cobra.Command{
 func init() {
 	eventOddsCmd.Flags().String("regions", "", "Comma-delimited regions (required)")
 	eventOddsCmd.Flags().String("markets", "", "Comma-delimited market keys (required)")
-	eventOddsCmd.Flags().String("odds-format", "", "Odds format: decimal or american")
 	eventOddsCmd.MarkFlagRequired("regions")
 	eventOddsCmd.MarkFlagRequired("markets")
 	rootCmd.AddCommand(eventOddsCmd)
 }
 
 func runEventOdds(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	params := url.Values{}
 	regions, _ := cmd.Flags().GetString("regions")
 	params.Set("regions", regions)
 	markets, _ := cmd.Flags().GetString("markets")
 	params.Set("markets", markets)
-	if v, _ := cmd.Flags().GetString("odds-format"); v != "" {
-		params.Set("oddsFormat", v)
+	if oddsFormat != "" {
+		params.Set("oddsFormat", oddsFormat)
 	}
 	if dateFormat != "iso" {
 		params.Set("dateFormat", dateFormat)
@@ -66,6 +62,8 @@ func runEventOdds(cmd *cobra.Command, args []string) error {
 		return output.NewJSONWriter(os.Stdout).Write(event)
 	}
 
-	output.NewTableWriter(os.Stdout, useColor()).WriteOdds([]model.OddsEvent{event})
+	tw := output.NewTableWriter(os.Stdout, useColor())
+	tw.OddsFormat = oddsFormat
+	tw.WriteOdds([]model.OddsEvent{event})
 	return nil
 }

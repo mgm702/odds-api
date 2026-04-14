@@ -27,7 +27,6 @@ var oddsCmd = &cobra.Command{
 func init() {
 	oddsCmd.Flags().String("regions", "", "Comma-delimited regions: us, us2, uk, au, eu (required)")
 	oddsCmd.Flags().String("markets", "", "Comma-delimited markets: h2h, spreads, totals, outrights")
-	oddsCmd.Flags().String("odds-format", "", "Odds format: decimal or american")
 	oddsCmd.Flags().String("event-ids", "", "Comma-separated event IDs")
 	oddsCmd.Flags().String("bookmakers", "", "Comma-separated bookmaker keys")
 	oddsCmd.Flags().String("from", "", "Filter events starting at/after (ISO 8601)")
@@ -37,13 +36,10 @@ func init() {
 }
 
 func runOdds(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	params := url.Values{}
 	regions, _ := cmd.Flags().GetString("regions")
@@ -52,8 +48,8 @@ func runOdds(cmd *cobra.Command, args []string) error {
 	if v, _ := cmd.Flags().GetString("markets"); v != "" {
 		params.Set("markets", v)
 	}
-	if v, _ := cmd.Flags().GetString("odds-format"); v != "" {
-		params.Set("oddsFormat", v)
+	if oddsFormat != "" {
+		params.Set("oddsFormat", oddsFormat)
 	}
 	if dateFormat != "iso" {
 		params.Set("dateFormat", dateFormat)
@@ -87,12 +83,14 @@ func runOdds(cmd *cobra.Command, args []string) error {
 	}
 
 	if !quiet && len(events) > 0 {
-		m := tui.NewOddsModel(events)
+		m := tui.NewOddsModel(events, oddsFormat)
 		p := tea.NewProgram(m, tea.WithAltScreen())
 		_, err := p.Run()
 		return err
 	}
 
-	output.NewTableWriter(os.Stdout, useColor()).WriteOdds(events)
+	tw := output.NewTableWriter(os.Stdout, useColor())
+	tw.OddsFormat = oddsFormat
+	tw.WriteOdds(events)
 	return nil
 }

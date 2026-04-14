@@ -15,7 +15,7 @@ func TestBuildFetchFunc_Odds(t *testing.T) {
 	c := client.New("test-key")
 	c.BaseURL = srv.URL
 
-	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "h2h", "")
+	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "h2h", "", "")
 	data, err := fetch(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -31,7 +31,7 @@ func TestBuildFetchFunc_Scores(t *testing.T) {
 	c := client.New("test-key")
 	c.BaseURL = srv.URL
 
-	fetch := buildFetchFunc(c, "scores", "basketball_nba", "", "", "")
+	fetch := buildFetchFunc(c, "scores", "basketball_nba", "", "", "", "")
 	data, err := fetch(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -50,7 +50,7 @@ func TestBuildFetchFunc_Error(t *testing.T) {
 	c := client.New("test-key")
 	c.BaseURL = srv.URL
 
-	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "", "")
+	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "", "", "")
 	_, err := fetch(context.Background())
 	if err == nil {
 		t.Error("expected error from fetch")
@@ -68,7 +68,7 @@ func TestBuildFetchFunc_QuotaTracking(t *testing.T) {
 	c := client.New("test-key")
 	c.BaseURL = srv.URL
 
-	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "", "")
+	fetch := buildFetchFunc(c, "odds", "basketball_nba", "us", "", "", "")
 	data, err := fetch(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -79,7 +79,7 @@ func TestBuildFetchFunc_QuotaTracking(t *testing.T) {
 }
 
 func TestNewWatchModel_OddsMode(t *testing.T) {
-	m := tui.NewWatchModel("odds", 60, nil)
+	m := tui.NewWatchModel("odds", 60, nil, "")
 	view := m.View()
 	if view == "" {
 		t.Error("expected non-empty view")
@@ -87,7 +87,7 @@ func TestNewWatchModel_OddsMode(t *testing.T) {
 }
 
 func TestNewWatchModel_ScoresMode(t *testing.T) {
-	m := tui.NewWatchModel("scores", 60, nil)
+	m := tui.NewWatchModel("scores", 60, nil, "")
 	view := m.View()
 	if view == "" {
 		t.Error("expected non-empty view")

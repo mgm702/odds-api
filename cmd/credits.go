@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 
-	"github.com/mgm702/odds-api-cli/internal/client"
 	"github.com/mgm702/odds-api-cli/internal/output"
 	"github.com/spf13/cobra"
 )
@@ -22,13 +21,10 @@ func init() {
 }
 
 func runCredits(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	quota, err := c.GetQuotaOnly(context.Background())
 	if err != nil {

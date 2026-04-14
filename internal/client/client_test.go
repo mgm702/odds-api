@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestGet_Success(t *testing.T) {
@@ -241,5 +243,69 @@ func TestHeaderInt_Invalid(t *testing.T) {
 	h.Set("X-Bad", "notanumber")
 	if got := headerInt(h, "X-Bad"); got != 0 {
 		t.Errorf("expected 0 for invalid header, got %d", got)
+	}
+}
+
+func TestGet_CacheHitBypassesNetwork(t *testing.T) {
+	var hits int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&hits, 1)
+		w.Header().Set("X-Requests-Remaining", "500")
+		w.Header().Set("X-Requests-Used", "100")
+		w.Header().Set("X-Requests-Last", "1")
+		w.Write([]byte(`[{"key":"nfl"}]`))
+	}))
+	defer srv.Close()
+
+	c := New("test-key")
+	c.BaseURL = srv.URL
+	c.SetCacheConfig(CacheConfig{
+		Enabled: true,
+		Mode:    CacheModeSmart,
+		TTL:     time.Minute,
+		Dir:     t.TempDir(),
+	})
+
+	if _, err := c.Get(context.Background(), "/v4/sports", nil); err != nil {
+		t.Fatalf("first get failed: %v", err)
+	}
+	if _, err := c.Get(context.Background(), "/v4/sports", nil); err != nil {
+		t.Fatalf("second get failed: %v", err)
+	}
+
+	if got := atomic.LoadInt32(&hits); got != 1 {
+		t.Fatalf("expected 1 server hit with cache, got %d", got)
+	}
+}
+
+func TestGet_CacheRefreshForcesNetwork(t *testing.T) {
+	var hits int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&hits, 1)
+		w.Header().Set("X-Requests-Remaining", "500")
+		w.Header().Set("X-Requests-Used", "100")
+		w.Header().Set("X-Requests-Last", "1")
+		w.Write([]byte(`[{"key":"nfl"}]`))
+	}))
+	defer srv.Close()
+
+	c := New("test-key")
+	c.BaseURL = srv.URL
+	c.SetCacheConfig(CacheConfig{
+		Enabled: true,
+		Mode:    CacheModeRefresh,
+		TTL:     time.Minute,
+		Dir:     t.TempDir(),
+	})
+
+	if _, err := c.Get(context.Background(), "/v4/sports", nil); err != nil {
+		t.Fatalf("first get failed: %v", err)
+	}
+	if _, err := c.Get(context.Background(), "/v4/sports", nil); err != nil {
+		t.Fatalf("second get failed: %v", err)
+	}
+
+	if got := atomic.LoadInt32(&hits); got != 2 {
+		t.Fatalf("expected 2 server hits in refresh mode, got %d", got)
 	}
 }

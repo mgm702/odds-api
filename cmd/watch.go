@@ -29,11 +29,12 @@ func init() {
 	watchCmd.Flags().String("regions", "", "Comma-delimited regions (required for odds mode)")
 	watchCmd.Flags().String("markets", "", "Comma-delimited markets")
 	watchCmd.Flags().String("event-ids", "", "Comma-separated event IDs")
+	watchCmd.Flags().Bool("use-cache", false, "Enable cache reads for watch polling")
 	rootCmd.AddCommand(watchCmd)
 }
 
 func runWatch(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
@@ -53,22 +54,26 @@ func runWatch(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("--regions is required for odds mode")
 	}
 
-	c := client.New(key)
-	c.Verbose = verbose
+	useCache, _ := cmd.Flags().GetBool("use-cache")
+	if !useCache {
+		cfg := c.CacheConfig
+		cfg.Mode = client.CacheModeOff
+		c.SetCacheConfig(cfg)
+	}
 
 	sport := args[0]
 	markets, _ := cmd.Flags().GetString("markets")
 	eventIDs, _ := cmd.Flags().GetString("event-ids")
 
-	fetch := buildFetchFunc(c, mode, sport, regions, markets, eventIDs)
+	fetch := buildFetchFunc(c, mode, sport, regions, markets, eventIDs, oddsFormat)
 
-	m := tui.NewWatchModel(mode, time.Duration(interval)*time.Second, fetch)
+	m := tui.NewWatchModel(mode, time.Duration(interval)*time.Second, fetch, oddsFormat)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	_, err = p.Run()
 	return err
 }
 
-func buildFetchFunc(c *client.Client, mode, sport, regions, markets, eventIDs string) tui.FetchFunc {
+func buildFetchFunc(c *client.Client, mode, sport, regions, markets, eventIDs, oddsFormat string) tui.FetchFunc {
 	return func(ctx context.Context) (tui.WatchData, error) {
 		if mode == "scores" {
 			params := url.Values{}
@@ -91,6 +96,9 @@ func buildFetchFunc(c *client.Client, mode, sport, regions, markets, eventIDs st
 		}
 		if eventIDs != "" {
 			params.Set("eventIds", eventIDs)
+		}
+		if oddsFormat != "" {
+			params.Set("oddsFormat", oddsFormat)
 		}
 
 		path := fmt.Sprintf("/v4/sports/%s/odds", sport)

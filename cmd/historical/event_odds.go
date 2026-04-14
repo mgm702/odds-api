@@ -24,7 +24,6 @@ func init() {
 	historicalEventOddsCmd.Flags().String("date", "", "ISO 8601 timestamp (required)")
 	historicalEventOddsCmd.Flags().String("regions", "", "Comma-delimited regions (required)")
 	historicalEventOddsCmd.Flags().String("markets", "", "Comma-delimited markets (required)")
-	historicalEventOddsCmd.Flags().String("odds-format", "", "Odds format: decimal or american")
 	historicalEventOddsCmd.MarkFlagRequired("date")
 	historicalEventOddsCmd.MarkFlagRequired("regions")
 	historicalEventOddsCmd.MarkFlagRequired("markets")
@@ -45,8 +44,9 @@ func runHistoricalEventOdds(cmd *cobra.Command, args []string) error {
 	params.Set("regions", regions)
 	markets, _ := cmd.Flags().GetString("markets")
 	params.Set("markets", markets)
-	if v, _ := cmd.Flags().GetString("odds-format"); v != "" {
-		params.Set("oddsFormat", v)
+	oddsFormat, _ := cmd.Root().PersistentFlags().GetString("odds-format")
+	if oddsFormat != "" {
+		params.Set("oddsFormat", oddsFormat)
 	}
 
 	path := fmt.Sprintf("/v4/historical/sports/%s/events/%s/odds", args[0], args[1])
@@ -65,6 +65,7 @@ func runHistoricalEventOdds(cmd *cobra.Command, args []string) error {
 	}
 
 	tw := output.NewTableWriter(os.Stdout, isColor(cmd))
+	tw.OddsFormat = oddsFormat
 	fmt.Fprintf(os.Stdout, "Snapshot: %s\n", data.Timestamp)
 	if data.PreviousTimestamp != nil {
 		fmt.Fprintf(os.Stdout, "Previous: %s\n", *data.PreviousTimestamp)

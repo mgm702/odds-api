@@ -25,13 +25,10 @@ func init() {
 }
 
 func runMarkets(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	path := fmt.Sprintf("/v4/sports/%s/events/%s/markets", args[0], args[1])
 	resp, err := c.Get(context.Background(), path, nil)

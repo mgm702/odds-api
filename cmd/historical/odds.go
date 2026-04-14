@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/mgm702/odds-api-cli/internal/client"
 	"github.com/mgm702/odds-api-cli/internal/model"
@@ -30,7 +32,6 @@ func init() {
 	historicalOddsCmd.Flags().String("date", "", "ISO 8601 timestamp (required)")
 	historicalOddsCmd.Flags().String("regions", "", "Comma-delimited regions (required)")
 	historicalOddsCmd.Flags().String("markets", "", "Comma-delimited markets")
-	historicalOddsCmd.Flags().String("odds-format", "", "Odds format: decimal or american")
 	historicalOddsCmd.MarkFlagRequired("date")
 	historicalOddsCmd.MarkFlagRequired("regions")
 
@@ -51,8 +52,9 @@ func runHistoricalOdds(cmd *cobra.Command, args []string) error {
 	if v, _ := cmd.Flags().GetString("markets"); v != "" {
 		params.Set("markets", v)
 	}
-	if v, _ := cmd.Flags().GetString("odds-format"); v != "" {
-		params.Set("oddsFormat", v)
+	oddsFormat, _ := cmd.Root().PersistentFlags().GetString("odds-format")
+	if oddsFormat != "" {
+		params.Set("oddsFormat", oddsFormat)
 	}
 
 	path := fmt.Sprintf("/v4/historical/sports/%s/odds", args[0])
@@ -70,7 +72,9 @@ func runHistoricalOdds(cmd *cobra.Command, args []string) error {
 		return output.NewJSONWriter(os.Stdout).Write(data)
 	}
 
-	output.NewTableWriter(os.Stdout, isColor(cmd)).WriteHistoricalOdds(data)
+	tw := output.NewTableWriter(os.Stdout, isColor(cmd))
+	tw.OddsFormat = oddsFormat
+	tw.WriteHistoricalOdds(data)
 	return nil
 }
 
@@ -85,6 +89,27 @@ func newClient(cmd *cobra.Command) (*client.Client, error) {
 	c := client.New(key)
 	v, _ := cmd.Root().PersistentFlags().GetBool("verbose")
 	c.Verbose = v
+
+	cacheEnabled, _ := cmd.Root().PersistentFlags().GetBool("cache")
+	cacheModeValue, _ := cmd.Root().PersistentFlags().GetString("cache-mode")
+	cacheTTL, _ := cmd.Root().PersistentFlags().GetDuration("cache-ttl")
+	cacheDir, _ := cmd.Root().PersistentFlags().GetString("cache-dir")
+
+	mode := client.CacheMode(strings.ToLower(strings.TrimSpace(cacheModeValue)))
+	switch mode {
+	case client.CacheModeSmart, client.CacheModeOff, client.CacheModeRefresh:
+	default:
+		return nil, fmt.Errorf("invalid --cache-mode %q: must be smart, off, or refresh", cacheModeValue)
+	}
+	if cacheTTL <= 0 {
+		cacheTTL = time.Minute
+	}
+	c.SetCacheConfig(client.CacheConfig{
+		Enabled: cacheEnabled,
+		Mode:    mode,
+		TTL:     cacheTTL,
+		Dir:     strings.TrimSpace(cacheDir),
+	})
 	return c, nil
 }
 

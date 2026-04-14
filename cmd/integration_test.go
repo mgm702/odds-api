@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync/atomic"
 	"testing"
 )
 
@@ -64,11 +65,11 @@ func TestIntegration_SportsJSON(t *testing.T) {
 
 	binary := buildBinary(t)
 
-	cmd := exec.Command(binary, "sports", "--json", "--api-key", "test-key")
+	cmd := exec.Command(binary, "sports", "--json")
 	cmd.Env = append(os.Environ(), "ODDS_API_BASE_URL="+srv.URL)
 
-	// Can't override base URL from env in current impl, so test the binary runs and produces output
-	// We test with real API key if available, otherwise skip
+	// Can't override base URL from env in current impl, so test the binary runs and produces output.
+	// We test with real API key if available, otherwise skip.
 	if os.Getenv("ODDS_API_KEY") == "" {
 		t.Skip("ODDS_API_KEY not set, skipping integration test")
 	}
@@ -174,5 +175,51 @@ func TestIntegration_HistoricalHelp(t *testing.T) {
 		if !strings.Contains(string(out), "date") {
 			t.Errorf("historical %s help should mention --date flag", subcmd)
 		}
+	}
+}
+
+func TestIntegration_CacheReuseWithMockServer(t *testing.T) {
+	var hits int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&hits, 1)
+		w.Header().Set("X-Requests-Remaining", "500")
+		w.Header().Set("X-Requests-Used", "0")
+		w.Header().Set("X-Requests-Last", "0")
+		w.Write([]byte(`[{"key":"nfl","group":"American Football","title":"NFL","description":"","active":true,"has_outrights":false}]`))
+	}))
+	defer srv.Close()
+
+	binary := buildBinary(t)
+	cacheDir := t.TempDir()
+	baseEnv := append(os.Environ(), "ODDS_API_BASE_URL="+srv.URL)
+
+	cmd1 := exec.Command(binary, "sports", "--json", "--api-key", "test-key", "--cache", "--cache-dir", cacheDir)
+	cmd1.Env = baseEnv
+	out1, err := cmd1.CombinedOutput()
+	if err != nil {
+		t.Fatalf("first sports call failed: %v\n%s", err, out1)
+	}
+
+	cmd2 := exec.Command(binary, "sports", "--json", "--api-key", "test-key", "--cache", "--cache-dir", cacheDir)
+	cmd2.Env = baseEnv
+	out2, err := cmd2.CombinedOutput()
+	if err != nil {
+		t.Fatalf("second sports call failed: %v\n%s", err, out2)
+	}
+
+	if atomic.LoadInt32(&hits) != 1 {
+		t.Fatalf("expected 1 server hit due to cache reuse, got %d", atomic.LoadInt32(&hits))
+	}
+
+	var first []map[string]any
+	var second []map[string]any
+	if err := json.Unmarshal(out1, &first); err != nil {
+		t.Fatalf("first output invalid json: %v", err)
+	}
+	if err := json.Unmarshal(out2, &second); err != nil {
+		t.Fatalf("second output invalid json: %v", err)
+	}
+	if len(first) != len(second) {
+		t.Fatalf("expected same output lengths, got %d and %d", len(first), len(second))
 	}
 }

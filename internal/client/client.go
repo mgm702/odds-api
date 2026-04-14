@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,23 +13,32 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mgm702/odds-api-cli/internal/cache"
 	"github.com/mgm702/odds-api-cli/internal/model"
 )
 
 const baseURL = "https://api.the-odds-api.com"
 
 type Client struct {
-	BaseURL    string
-	APIKey     string
-	HTTPClient *http.Client
-	Verbose    bool
+	BaseURL     string
+	APIKey      string
+	HTTPClient  *http.Client
+	Verbose     bool
+	CacheConfig CacheConfig
+	cacheStore  *cache.Store
 }
 
 func New(apiKey string) *Client {
+	apiBase := baseURL
+	if v := strings.TrimSpace(os.Getenv("ODDS_API_BASE_URL")); v != "" {
+		apiBase = strings.TrimRight(v, "/")
+	}
+
 	return &Client{
-		BaseURL:    baseURL,
-		APIKey:     apiKey,
-		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+		BaseURL:     apiBase,
+		APIKey:      apiKey,
+		HTTPClient:  &http.Client{Timeout: 30 * time.Second},
+		CacheConfig: DefaultCacheConfig(),
 	}
 }
 
@@ -43,6 +53,38 @@ func (c *Client) Get(ctx context.Context, path string, params url.Values) (*Resp
 		params = url.Values{}
 	}
 	params.Set("apiKey", c.APIKey)
+
+	cachePath := c.BaseURL + path
+	if c.shouldUseCache(path) {
+		key := cache.RequestKey(http.MethodGet, cachePath, params)
+		store, err := c.cacheStoreOrInit()
+		if err != nil {
+			if c.Verbose {
+				fmt.Fprintf(os.Stderr, "Cache disabled (init error): %v\n", err)
+			}
+		} else if c.CacheConfig.Mode != CacheModeRefresh {
+			entry, err := store.Get(key, c.CacheConfig.TTL)
+			if err == nil {
+				if c.Verbose {
+					fmt.Fprintf(os.Stderr, "Cache hit: %s\n", path)
+				}
+				return &Response{
+					StatusCode: entry.StatusCode,
+					Quota:      entry.Quota,
+					Body:       io.NopCloser(bytes.NewReader(entry.Body)),
+				}, nil
+			}
+			if c.Verbose {
+				if err == cache.ErrNotFound {
+					fmt.Fprintf(os.Stderr, "Cache miss: %s\n", path)
+				} else {
+					fmt.Fprintf(os.Stderr, "Cache bypass (read error): %v\n", err)
+				}
+			}
+		} else if c.Verbose {
+			fmt.Fprintf(os.Stderr, "Cache refresh mode (skip read): %s\n", path)
+		}
+	}
 
 	u := fmt.Sprintf("%s%s?%s", c.BaseURL, path, params.Encode())
 
@@ -80,11 +122,65 @@ func (c *Client) Get(ctx context.Context, path string, params url.Values) (*Resp
 		}
 	}
 
+	if c.shouldUseCache(path) {
+		if store, err := c.cacheStoreOrInit(); err == nil {
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				resp.Body.Close()
+				return nil, fmt.Errorf("reading response body: %w", readErr)
+			}
+			resp.Body.Close()
+			resp.Body = io.NopCloser(bytes.NewReader(body))
+
+			if putErr := store.Put(cache.RequestKey(http.MethodGet, cachePath, params), cache.Entry{
+				StatusCode: resp.StatusCode,
+				Quota:      quota,
+				Body:       body,
+			}); putErr != nil && c.Verbose {
+				fmt.Fprintf(os.Stderr, "Cache bypass (write error): %v\n", putErr)
+			}
+		}
+	}
+
 	return &Response{
 		StatusCode: resp.StatusCode,
 		Quota:      quota,
 		Body:       resp.Body,
 	}, nil
+}
+
+func (c *Client) shouldUseCache(path string) bool {
+	if !c.CacheConfig.Enabled {
+		return false
+	}
+	if c.CacheConfig.Mode == CacheModeOff {
+		return false
+	}
+	if c.CacheConfig.Mode == CacheModeRefresh {
+		return true
+	}
+	return cacheablePath(path)
+}
+
+func cacheablePath(path string) bool {
+	switch {
+	case path == "/v4/sports":
+		return true
+	case strings.Contains(path, "/events/") && strings.HasSuffix(path, "/odds"):
+		return false
+	case strings.Contains(path, "/events/") && strings.HasSuffix(path, "/markets"):
+		return true
+	case strings.HasSuffix(path, "/events"):
+		return true
+	case strings.HasSuffix(path, "/odds"):
+		return true
+	case strings.HasSuffix(path, "/scores"):
+		return true
+	case strings.HasSuffix(path, "/participants"):
+		return true
+	default:
+		return strings.Contains(path, "/historical/")
+	}
 }
 
 func (c *Client) GetQuotaOnly(ctx context.Context) (model.QuotaInfo, error) {

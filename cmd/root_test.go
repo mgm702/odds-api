@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestGetAPIKey_FromFlag(t *testing.T) {
@@ -64,5 +65,39 @@ func TestUseColor_Env(t *testing.T) {
 	defer os.Unsetenv("NO_COLOR")
 	if useColor() {
 		t.Error("expected no color with NO_COLOR env")
+	}
+}
+
+func TestCurrentCacheConfig_InvalidMode(t *testing.T) {
+	cacheMode = "bad"
+	defer func() { cacheMode = "smart" }()
+
+	_, err := currentCacheConfig()
+	if err == nil {
+		t.Fatal("expected error for invalid cache mode")
+	}
+}
+
+func TestCurrentCacheConfig_Valid(t *testing.T) {
+	cacheEnabled = true
+	cacheMode = "refresh"
+	cacheTTL = 2 * time.Minute
+	cacheDir = "/tmp/odds-cache"
+
+	cfg, err := currentCacheConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !cfg.Enabled {
+		t.Fatal("expected cache enabled")
+	}
+	if cfg.Mode != "refresh" {
+		t.Fatalf("expected refresh mode, got %s", cfg.Mode)
+	}
+	if cfg.TTL != 2*time.Minute {
+		t.Fatalf("expected 2m TTL, got %s", cfg.TTL)
+	}
+	if cfg.Dir != "/tmp/odds-cache" {
+		t.Fatalf("expected cache dir set, got %s", cfg.Dir)
 	}
 }

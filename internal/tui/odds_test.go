@@ -48,7 +48,7 @@ func testOddsEvents() []model.OddsEvent {
 }
 
 func TestOddsModel_Init(t *testing.T) {
-	m := NewOddsModel(testOddsEvents())
+	m := NewOddsModel(testOddsEvents(), "")
 	cmd := m.Init()
 	if cmd != nil {
 		t.Error("expected nil cmd from Init")
@@ -56,7 +56,7 @@ func TestOddsModel_Init(t *testing.T) {
 }
 
 func TestOddsModel_View(t *testing.T) {
-	m := NewOddsModel(testOddsEvents())
+	m := NewOddsModel(testOddsEvents(), "")
 	view := m.View()
 	if !strings.Contains(view, "LAL vs BOS") {
 		t.Error("expected matchup in view")
@@ -67,7 +67,7 @@ func TestOddsModel_View(t *testing.T) {
 }
 
 func TestOddsModel_Empty(t *testing.T) {
-	m := NewOddsModel(nil)
+	m := NewOddsModel(nil, "")
 	view := m.View()
 	if !strings.Contains(view, "No odds data") {
 		t.Error("expected empty state message")
@@ -75,7 +75,7 @@ func TestOddsModel_Empty(t *testing.T) {
 }
 
 func TestOddsModel_Quit(t *testing.T) {
-	m := NewOddsModel(testOddsEvents())
+	m := NewOddsModel(testOddsEvents(), "")
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'q'}})
 	model := updated.(OddsModel)
 	if !model.quitting {
@@ -87,7 +87,7 @@ func TestOddsModel_Quit(t *testing.T) {
 }
 
 func TestOddsModel_Navigate(t *testing.T) {
-	m := NewOddsModel(testOddsEvents())
+	m := NewOddsModel(testOddsEvents(), "")
 
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyTab})
 	model := updated.(OddsModel)
@@ -103,7 +103,7 @@ func TestOddsModel_Navigate(t *testing.T) {
 }
 
 func TestOddsModel_NavigateBounds(t *testing.T) {
-	m := NewOddsModel(testOddsEvents())
+	m := NewOddsModel(testOddsEvents(), "")
 
 	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyShiftTab})
 	model := updated.(OddsModel)
@@ -136,7 +136,7 @@ func TestBuildOddsRows(t *testing.T) {
 			},
 		},
 	}
-	rows := buildOddsRows(e)
+	rows := buildOddsRows(e, "")
 	if len(rows) != 1 {
 		t.Fatalf("expected 1 row, got %d", len(rows))
 	}

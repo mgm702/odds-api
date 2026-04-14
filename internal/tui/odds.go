@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -11,9 +12,21 @@ import (
 )
 
 type OddsModel struct {
-	tables   []eventTable
-	current  int
-	quitting bool
+	tables     []eventTable
+	current    int
+	quitting   bool
+	oddsFormat string
+}
+
+func formatOddsPrice(price float64, oddsFormat string) string {
+	if strings.ToLower(oddsFormat) == "american" {
+		n := int(math.Round(price))
+		if n >= 0 {
+			return fmt.Sprintf("+%d", n)
+		}
+		return fmt.Sprintf("%d", n)
+	}
+	return fmt.Sprintf("%.2f", price)
 }
 
 type eventTable struct {
@@ -21,10 +34,10 @@ type eventTable struct {
 	table table.Model
 }
 
-func NewOddsModel(events []model.OddsEvent) OddsModel {
+func NewOddsModel(events []model.OddsEvent, oddsFormat string) OddsModel {
 	var tables []eventTable
 	for _, e := range events {
-		rows := buildOddsRows(e)
+		rows := buildOddsRows(e, oddsFormat)
 		columns := []table.Column{
 			{Title: "Bookmaker", Width: 20},
 			{Title: "Market", Width: 12},
@@ -54,10 +67,10 @@ func NewOddsModel(events []model.OddsEvent) OddsModel {
 		tables = append(tables, eventTable{title: title, table: t})
 	}
 
-	return OddsModel{tables: tables}
+	return OddsModel{tables: tables, oddsFormat: oddsFormat}
 }
 
-func buildOddsRows(e model.OddsEvent) []table.Row {
+func buildOddsRows(e model.OddsEvent, oddsFormat string) []table.Row {
 	var rows []table.Row
 	for _, b := range e.Bookmakers {
 		for _, m := range b.Markets {
@@ -67,7 +80,7 @@ func buildOddsRows(e model.OddsEvent) []table.Row {
 					point = fmt.Sprintf("%+.1f", *o.Point)
 				}
 				rows = append(rows, table.Row{
-					b.Title, m.Key, o.Name, fmt.Sprintf("%.2f", o.Price), point,
+					b.Title, m.Key, o.Name, formatOddsPrice(o.Price, oddsFormat), point,
 				})
 			}
 		}

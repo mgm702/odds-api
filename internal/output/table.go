@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"io"
+	"math"
 	"strings"
 	"text/tabwriter"
 
@@ -10,12 +11,24 @@ import (
 )
 
 type TableWriter struct {
-	Out   io.Writer
-	Color bool
+	Out        io.Writer
+	Color      bool
+	OddsFormat string
 }
 
 func NewTableWriter(out io.Writer, color bool) *TableWriter {
 	return &TableWriter{Out: out, Color: color}
+}
+
+func (t *TableWriter) formatPrice(price float64) string {
+	if strings.ToLower(t.OddsFormat) == "american" {
+		n := int(math.Round(price))
+		if n >= 0 {
+			return fmt.Sprintf("+%d", n)
+		}
+		return fmt.Sprintf("%d", n)
+	}
+	return fmt.Sprintf("%.2f", price)
 }
 
 func (t *TableWriter) WriteSports(sports []model.Sport) {
@@ -53,9 +66,9 @@ func (t *TableWriter) WriteOdds(events []model.OddsEvent) {
 				w := tabwriter.NewWriter(t.Out, 0, 0, 2, ' ', 0)
 				for _, o := range m.Outcomes {
 					if o.Point != nil {
-						fmt.Fprintf(w, "      %s\t%+.1f\t%.2f\n", o.Name, *o.Point, o.Price)
+						fmt.Fprintf(w, "      %s\t%+.1f\t%s\n", o.Name, *o.Point, t.formatPrice(o.Price))
 					} else {
-						fmt.Fprintf(w, "      %s\t\t%.2f\n", o.Name, o.Price)
+						fmt.Fprintf(w, "      %s\t\t%s\n", o.Name, t.formatPrice(o.Price))
 					}
 				}
 				w.Flush()

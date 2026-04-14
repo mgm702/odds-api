@@ -25,13 +25,10 @@ func init() {
 }
 
 func runParticipants(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	path := fmt.Sprintf("/v4/sports/%s/participants", args[0])
 	resp, err := c.Get(context.Background(), path, nil)

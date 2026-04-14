@@ -28,13 +28,10 @@ func init() {
 }
 
 func runScores(cmd *cobra.Command, args []string) error {
-	key, err := getAPIKey()
+	c, err := newRuntimeClient()
 	if err != nil {
 		return err
 	}
-
-	c := client.New(key)
-	c.Verbose = verbose
 
 	params := url.Values{}
 	if dateFormat != "iso" {
