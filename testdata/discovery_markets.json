@@ -1,0 +1,15 @@
+{
+  "id": "evt001",
+  "sport_key": "basketball_nba",
+  "bookmakers": [
+    {
+      "key": "draftkings",
+      "title": "DraftKings",
+      "markets": [
+        {"key": "h2h"},
+        {"key": "player_points"},
+        {"key": "player_rebounds"}
+      ]
+    }
+  ]
+}
