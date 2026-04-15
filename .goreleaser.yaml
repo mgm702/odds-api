@@ -43,7 +43,7 @@ changelog:
 release:
   github:
     owner: mgm702
-    name: odds-api-cli
+    name: odds-api
 
 brews:
   - name: odds
@@ -51,7 +51,7 @@ brews:
       owner: mgm702
       name: homebrew-odds
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    homepage: "https://github.com/mgm702/odds-api-cli"
+    homepage: "https://github.com/mgm702/odds-api"
     description: "CLI for The Odds API v4"
     test: |
       system "#{bin}/odds", "--version"
