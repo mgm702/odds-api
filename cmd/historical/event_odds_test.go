@@ -14,7 +14,7 @@ import (
 func TestHistoricalEventOdds_Decode(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		withQuotaHeaders(w)
-		w.Write([]byte(`{
+		_, _ = w.Write([]byte(`{
 			"timestamp": "2024-11-30T12:00:00Z",
 			"previous_timestamp": "2024-11-30T11:55:00Z",
 			"next_timestamp": null,
@@ -62,7 +62,7 @@ func TestHistoricalEventOdds_Path(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.Path
 		withQuotaHeaders(w)
-		w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":{"id":"e1","bookmakers":[]}}`))
+		_, _ = w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":{"id":"e1","bookmakers":[]}}`))
 	}))
 	defer srv.Close()
 

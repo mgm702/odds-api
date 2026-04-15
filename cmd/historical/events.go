@@ -22,7 +22,7 @@ var historicalEventsCmd = &cobra.Command{
 
 func init() {
 	historicalEventsCmd.Flags().String("date", "", "ISO 8601 timestamp (required)")
-	historicalEventsCmd.MarkFlagRequired("date")
+	_ = historicalEventsCmd.MarkFlagRequired("date")
 
 	HistoricalCmd.AddCommand(historicalEventsCmd)
 }

@@ -31,7 +31,7 @@ func init() {
 	oddsCmd.Flags().String("bookmakers", "", "Comma-separated bookmaker keys")
 	oddsCmd.Flags().String("from", "", "Filter events starting at/after (ISO 8601)")
 	oddsCmd.Flags().String("to", "", "Filter events starting at/before (ISO 8601)")
-	oddsCmd.MarkFlagRequired("regions")
+	_ = oddsCmd.MarkFlagRequired("regions")
 	rootCmd.AddCommand(oddsCmd)
 }
 

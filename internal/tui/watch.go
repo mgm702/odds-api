@@ -185,7 +185,7 @@ func (m *WatchModel) buildScoreRows(events []model.ScoreEvent) []table.Row {
 		} else if e.Scores != nil {
 			status = "live"
 		}
-		if e.Scores != nil && len(e.Scores) >= 2 {
+		if len(e.Scores) >= 2 {
 			score = fmt.Sprintf("%s - %s", e.Scores[0].Score, e.Scores[1].Score)
 		}
 

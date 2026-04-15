@@ -24,9 +24,9 @@ func init() {
 	historicalEventOddsCmd.Flags().String("date", "", "ISO 8601 timestamp (required)")
 	historicalEventOddsCmd.Flags().String("regions", "", "Comma-delimited regions (required)")
 	historicalEventOddsCmd.Flags().String("markets", "", "Comma-delimited markets (required)")
-	historicalEventOddsCmd.MarkFlagRequired("date")
-	historicalEventOddsCmd.MarkFlagRequired("regions")
-	historicalEventOddsCmd.MarkFlagRequired("markets")
+	_ = historicalEventOddsCmd.MarkFlagRequired("date")
+	_ = historicalEventOddsCmd.MarkFlagRequired("regions")
+	_ = historicalEventOddsCmd.MarkFlagRequired("markets")
 
 	HistoricalCmd.AddCommand(historicalEventOddsCmd)
 }

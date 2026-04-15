@@ -82,7 +82,7 @@ func (t *TableWriter) WriteScores(events []model.ScoreEvent) {
 	fmt.Fprintln(w, "HOME\tAWAY\tSCORE\tSTATUS\tUPDATED")
 	for _, e := range events {
 		score := "-"
-		if e.Scores != nil && len(e.Scores) >= 2 {
+		if len(e.Scores) >= 2 {
 			score = fmt.Sprintf("%s - %s", e.Scores[0].Score, e.Scores[1].Score)
 		}
 		status := "upcoming"

@@ -14,7 +14,7 @@ import (
 func TestHistoricalEvents_Decode(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		withQuotaHeaders(w)
-		w.Write([]byte(`{
+		_, _ = w.Write([]byte(`{
 			"timestamp": "2024-11-30T12:00:00Z",
 			"previous_timestamp": "2024-11-30T11:55:00Z",
 			"next_timestamp": "2024-11-30T12:05:00Z",
@@ -54,7 +54,7 @@ func TestHistoricalEvents_DateParam(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotDate = r.URL.Query().Get("date")
 		withQuotaHeaders(w)
-		w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":[]}`))
+		_, _ = w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":[]}`))
 	}))
 	defer srv.Close()
 

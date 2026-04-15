@@ -24,8 +24,8 @@ var eventOddsCmd = &cobra.Command{
 func init() {
 	eventOddsCmd.Flags().String("regions", "", "Comma-delimited regions (required)")
 	eventOddsCmd.Flags().String("markets", "", "Comma-delimited market keys (required)")
-	eventOddsCmd.MarkFlagRequired("regions")
-	eventOddsCmd.MarkFlagRequired("markets")
+	_ = eventOddsCmd.MarkFlagRequired("regions")
+	_ = eventOddsCmd.MarkFlagRequired("markets")
 	rootCmd.AddCommand(eventOddsCmd)
 }
 
