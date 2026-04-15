@@ -18,7 +18,7 @@ func TestGet_Success(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "100")
 		w.Header().Set("X-Requests-Last", "1")
-		w.Write([]byte(`[{"key":"nfl"}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl"}]`))
 	}))
 	defer srv.Close()
 
@@ -46,7 +46,7 @@ func TestGet_Params(t *testing.T) {
 	var gotParams url.Values
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotParams = r.URL.Query()
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	}))
 	defer srv.Close()
 
@@ -76,7 +76,7 @@ func TestGet_Params(t *testing.T) {
 func TestGet_401(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(401)
-		w.Write([]byte(`unauthorized`))
+		_, _ = w.Write([]byte(`unauthorized`))
 	}))
 	defer srv.Close()
 
@@ -103,7 +103,7 @@ func TestGet_401(t *testing.T) {
 func TestGet_422(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(422)
-		w.Write([]byte(`invalid params`))
+		_, _ = w.Write([]byte(`invalid params`))
 	}))
 	defer srv.Close()
 
@@ -123,7 +123,7 @@ func TestGet_422(t *testing.T) {
 func TestGet_429(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(429)
-		w.Write([]byte(`rate limited`))
+		_, _ = w.Write([]byte(`rate limited`))
 	}))
 	defer srv.Close()
 
@@ -143,7 +143,7 @@ func TestGet_429(t *testing.T) {
 func TestGet_500(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
-		w.Write([]byte(`server error`))
+		_, _ = w.Write([]byte(`server error`))
 	}))
 	defer srv.Close()
 
@@ -165,7 +165,7 @@ func TestGetQuotaOnly(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "358")
 		w.Header().Set("X-Requests-Used", "142")
 		w.Header().Set("X-Requests-Last", "0")
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	}))
 	defer srv.Close()
 
@@ -189,7 +189,7 @@ func TestGetQuotaOnly(t *testing.T) {
 
 func TestDecode(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`[{"key":"nfl","title":"NFL","group":"American Football","description":"","active":true,"has_outrights":false}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl","title":"NFL","group":"American Football","description":"","active":true,"has_outrights":false}]`))
 	}))
 	defer srv.Close()
 
@@ -216,7 +216,7 @@ func TestDecode(t *testing.T) {
 
 func TestGet_Verbose(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	}))
 	defer srv.Close()
 
@@ -253,7 +253,7 @@ func TestGet_CacheHitBypassesNetwork(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "100")
 		w.Header().Set("X-Requests-Last", "1")
-		w.Write([]byte(`[{"key":"nfl"}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl"}]`))
 	}))
 	defer srv.Close()
 
@@ -285,7 +285,7 @@ func TestGet_CacheRefreshForcesNetwork(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "100")
 		w.Header().Set("X-Requests-Last", "1")
-		w.Write([]byte(`[{"key":"nfl"}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl"}]`))
 	}))
 	defer srv.Close()
 

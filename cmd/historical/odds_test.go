@@ -22,7 +22,7 @@ func TestHistoricalOdds_Decode(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		withQuotaHeaders(w)
 		data, _ := os.ReadFile("../../testdata/historical_odds.json")
-		w.Write(data)
+		_, _ = w.Write(data)
 	}))
 	defer srv.Close()
 
@@ -62,7 +62,7 @@ func TestHistoricalOdds_Params(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotParams = r.URL.Query()
 		withQuotaHeaders(w)
-		w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":[]}`))
+		_, _ = w.Write([]byte(`{"timestamp":"2024-01-01T00:00:00Z","data":[]}`))
 	}))
 	defer srv.Close()
 

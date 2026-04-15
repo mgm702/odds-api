@@ -42,7 +42,7 @@ func TestOddsCommand_Params(t *testing.T) {
 	srv, _ := setupTestServer(t, func(w http.ResponseWriter, r *http.Request) {
 		gotParams = r.URL.Query()
 		withQuotaHeaders(w)
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	})
 
 	c := client.New("test-key")

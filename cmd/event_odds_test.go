@@ -48,7 +48,7 @@ func TestEventOddsCommand_Params(t *testing.T) {
 		gotPath = r.URL.Path
 		gotParams = r.URL.Query()
 		withQuotaHeaders(w)
-		w.Write([]byte(`{"id":"evt001","bookmakers":[]}`))
+		_, _ = w.Write([]byte(`{"id":"evt001","bookmakers":[]}`))
 	})
 
 	c := client.New("test-key")

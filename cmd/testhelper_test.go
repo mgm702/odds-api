@@ -32,6 +32,6 @@ func fixtureHandler(fixturePath string) http.HandlerFunc {
 			w.WriteHeader(500)
 			return
 		}
-		w.Write(data)
+		_, _ = w.Write(data)
 	}
 }

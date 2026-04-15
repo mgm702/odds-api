@@ -13,7 +13,7 @@ func TestCreditsCommand_QuotaOnly(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "358")
 		w.Header().Set("X-Requests-Used", "142")
 		w.Header().Set("X-Requests-Last", "0")
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	})
 
 	c := client.New("test-key")
@@ -42,7 +42,7 @@ func TestCreditsCommand_PathIsCorrect(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "0")
 		w.Header().Set("X-Requests-Last", "0")
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	})
 
 	c := client.New("test-key")

@@ -59,7 +59,7 @@ func TestIntegration_SportsJSON(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "0")
 		w.Header().Set("X-Requests-Last", "0")
-		w.Write([]byte(`[{"key":"nfl","group":"American Football","title":"NFL","description":"","active":true,"has_outrights":false}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl","group":"American Football","title":"NFL","description":"","active":true,"has_outrights":false}]`))
 	}))
 	defer srv.Close()
 
@@ -185,7 +185,7 @@ func TestIntegration_CacheReuseWithMockServer(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "500")
 		w.Header().Set("X-Requests-Used", "0")
 		w.Header().Set("X-Requests-Last", "0")
-		w.Write([]byte(`[{"key":"nfl","group":"American Football","title":"NFL","description":"","active":true,"has_outrights":false}]`))
+		_, _ = w.Write([]byte(`[{"key":"nfl","group":"American Football","title":"NFL","description":"","active":true,"has_outrights":false}]`))
 	}))
 	defer srv.Close()
 

@@ -69,7 +69,7 @@ func TestSportsCommand_AllFlag(t *testing.T) {
 	srv, _ := setupTestServer(t, func(w http.ResponseWriter, r *http.Request) {
 		gotAll = r.URL.Query().Get("all")
 		withQuotaHeaders(w)
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	})
 
 	c := client.New("test-key")

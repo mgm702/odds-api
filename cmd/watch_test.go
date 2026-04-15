@@ -44,7 +44,7 @@ func TestBuildFetchFunc_Scores(t *testing.T) {
 func TestBuildFetchFunc_Error(t *testing.T) {
 	srv, _ := setupTestServer(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
-		w.Write([]byte(`server error`))
+		_, _ = w.Write([]byte(`server error`))
 	})
 
 	c := client.New("test-key")
@@ -62,7 +62,7 @@ func TestBuildFetchFunc_QuotaTracking(t *testing.T) {
 		w.Header().Set("X-Requests-Remaining", "450")
 		w.Header().Set("X-Requests-Used", "50")
 		w.Header().Set("X-Requests-Last", "2")
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	})
 
 	c := client.New("test-key")
