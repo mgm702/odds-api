@@ -22,7 +22,7 @@ go install github.com/mgm702/odds-api-cli@latest
 ### Homebrew (after release automation is enabled)
 
 ```bash
-brew tap mgm702/odds
+brew tap mgm702/tap
 brew install odds
 ```
 

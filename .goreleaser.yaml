@@ -49,7 +49,7 @@ brews:
   - name: odds
     repository:
       owner: mgm702
-      name: homebrew-odds
+      name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: "https://github.com/mgm702/odds-api"
     description: "CLI for The Odds API v4"
