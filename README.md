@@ -52,7 +52,7 @@ Global flags:
 ```bash
 odds sports
 odds events basketball_nba
-odds odds basketball_nba --regions us --markets h2h,spreads
+odds lines basketball_nba --regions us --markets h2h,spreads
 odds scores basketball_nba --days-from 1
 odds credits
 odds watch basketball_nba --regions us
@@ -63,7 +63,7 @@ odds discover player-props basketball_nba --regions us
 
 - `odds sports`
 - `odds events <sport>`
-- `odds odds <sport> --regions ...`
+- `odds lines <sport> --regions ...`
 - `odds event-odds <sport> <event-id> --regions ... --markets ...`
 - `odds markets <sport> <event-id>`
 - `odds participants <sport>`

@@ -36,7 +36,7 @@ var rootCmd = &cobra.Command{
 	Long:  "Query sports betting odds, scores, and historical data from The Odds API.",
 	Example: `  odds sports
   odds events basketball_nba
-  odds odds basketball_nba --regions us --markets h2h,spreads
+  odds lines basketball_nba --regions us --markets h2h,spreads
   odds scores basketball_nba --days-from 1
   odds credits
   odds watch basketball_nba --regions us`,

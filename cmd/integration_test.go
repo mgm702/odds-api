@@ -139,7 +139,7 @@ func TestIntegration_OddsMissingRegions(t *testing.T) {
 	}
 
 	binary := buildBinary(t)
-	out, err := exec.Command(binary, "odds", "basketball_nba").CombinedOutput()
+	out, err := exec.Command(binary, "lines", "basketball_nba").CombinedOutput()
 	if err == nil {
 		t.Fatal("expected error for missing --regions")
 	}
@@ -151,7 +151,7 @@ func TestIntegration_OddsMissingRegions(t *testing.T) {
 func TestIntegration_SubcommandHelp(t *testing.T) {
 	binary := buildBinary(t)
 
-	commands := []string{"sports", "events", "odds", "scores", "credits", "watch", "historical"}
+	commands := []string{"sports", "events", "lines", "scores", "credits", "watch", "historical"}
 	for _, subcmd := range commands {
 		out, err := exec.Command(binary, subcmd, "--help").CombinedOutput()
 		if err != nil {

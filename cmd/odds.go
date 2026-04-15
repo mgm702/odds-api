@@ -14,25 +14,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var oddsCmd = &cobra.Command{
-	Use:   "odds <sport>",
-	Short: "Get odds for a sport",
+var linesCmd = &cobra.Command{
+	Use:   "lines <sport>",
+	Short: "Get lines for a sport",
 	Args:  cobra.ExactArgs(1),
-	Example: `  odds odds basketball_nba --regions us
-  odds odds basketball_nba --regions us,uk --markets h2h,spreads
-  odds odds upcoming --regions us`,
+	Example: `  odds lines basketball_nba --regions us
+  odds lines basketball_nba --regions us,uk --markets h2h,spreads
+  odds lines upcoming --regions us`,
 	RunE: runOdds,
 }
 
 func init() {
-	oddsCmd.Flags().String("regions", "", "Comma-delimited regions: us, us2, uk, au, eu (required)")
-	oddsCmd.Flags().String("markets", "", "Comma-delimited markets: h2h, spreads, totals, outrights")
-	oddsCmd.Flags().String("event-ids", "", "Comma-separated event IDs")
-	oddsCmd.Flags().String("bookmakers", "", "Comma-separated bookmaker keys")
-	oddsCmd.Flags().String("from", "", "Filter events starting at/after (ISO 8601)")
-	oddsCmd.Flags().String("to", "", "Filter events starting at/before (ISO 8601)")
-	_ = oddsCmd.MarkFlagRequired("regions")
-	rootCmd.AddCommand(oddsCmd)
+	linesCmd.Flags().String("regions", "", "Comma-delimited regions: us, us2, uk, au, eu (required)")
+	linesCmd.Flags().String("markets", "", "Comma-delimited markets: h2h, spreads, totals, outrights")
+	linesCmd.Flags().String("event-ids", "", "Comma-separated event IDs")
+	linesCmd.Flags().String("bookmakers", "", "Comma-separated bookmaker keys")
+	linesCmd.Flags().String("from", "", "Filter events starting at/after (ISO 8601)")
+	linesCmd.Flags().String("to", "", "Filter events starting at/before (ISO 8601)")
+	_ = linesCmd.MarkFlagRequired("regions")
+	rootCmd.AddCommand(linesCmd)
 }
 
 func runOdds(cmd *cobra.Command, args []string) error {
